@@ -12,6 +12,7 @@ from random import choice
 space = pm.Space()  # objeto espaço de simulação
 shapes = []
 constraints = []
+pontos = 0
 
 LEFT_CONTROL = 'a'
 RIGHT_CONTROL = 'l'
@@ -62,7 +63,9 @@ def setup():   # configs iniciais (para o py5)
     plunger_spring = pm.DampedSpring(plunger, space.static_body, (0, 0), (484, 635),
                                      0, stiffness=90000, damping=5000)
     space.add(plunger_spring)
-    #build_ball(484, 735, 8, static=True) # plunger stopper
+    for x, y in ((300, 228), (208, 227), (392, 237)):
+        build_ball(x, y, 20, static=True)
+        shapes[-1].collision_type = 98
     
     global ball
     build_ball( 486, 610, 15 )
@@ -76,6 +79,9 @@ def setup():   # configs iniciais (para o py5)
         print('could not load image')
     handler = space.add_collision_handler( 99, 1 )
     handler.post_solve = lose_ball
+    
+    handler = space.add_collision_handler( 98, 1 )
+    handler.post_solve = ponto
     
     #Paddle Comprimentos e Grossuras
     PC = 80
@@ -108,7 +114,9 @@ def setup():   # configs iniciais (para o py5)
 def draw():   # loop de animação
     background(222)   # fundo cinza, limpa frame
     #print(f"esquerda: {keys['a']}\ndireita: {keys['l']}") # "a: " + str(keys['a'])
-
+    text_size(30)
+    fill(0)
+    text(pontos, width - 50 - text_width(str(pontos)), 50)
     #rect( 100, 0, 400, 650 );
     for ctt in constraints:
         if isinstance(ctt, pm.GrooveJoint):
@@ -128,7 +136,10 @@ def draw():   # loop de animação
                 image(shp.img, x, y, shp.radius * 2, shp.radius * 2)
             else:
                 stroke_weight(1)
-                fill(255)
+                if hasattr(shp, 'cor'):
+                    fill(shp.cor)
+                else:
+                    fill(255)
                 circle(x, y, shp.radius * 2)
         elif isinstance(shp, pm.Poly):
             stroke_weight(1)
@@ -158,6 +169,14 @@ def lose_ball(arbiter, space, data):
     # perde pontos
     # arbiter.shapes[0]
     ball.position = (486, 610)
+ 
+def ponto(arbiter, space, data):
+    global pontos
+    pontos += 1
+    arbiter.shapes[0].cor = color(random(256), random(256), random(256))
+    
+    
+    
  
 def build_ball( x, y, r, static = False ):
     if static: 
@@ -229,6 +248,7 @@ def assemble_ring( cx, cy, rad, start, stop, E ):
         shp = pm.Poly(space.static_body, verts)
         space.add(shp)
         shp.cor = color(127)
+        shp.collision_type = 98
         shapes.append(shp)
 
 def arc_pts(cx, cy, w, h, start_angle, end_angle, res=5):
@@ -316,7 +336,7 @@ def assemble_bouncy_pad(A, B, pad_h=60, pad_tck=20, springs=5, stiffness=400, da
     boB = B + delta
 
     build_poly(median_center(verts), verts, False, 0.01, 0.92, 0.025, color(30, 180, 160) )
-
+    shapes[-1].collision_type = 98
     pgA = pm.GrooveJoint( space.static_body, shapes[-1].body, boA, verts[3], verts[3] )
     pgB = pm.GrooveJoint( space.static_body, shapes[-1].body, boB, verts[2], verts[2] )
     constraints.append( pgA )
@@ -335,6 +355,9 @@ def assemble_bouncy_pad(A, B, pad_h=60, pad_tck=20, springs=5, stiffness=400, da
                                rest_length=delta.length, stiffness=stiffness, damping=damping )
             constraints.append(ds)
             space.add( ds )
+    
+
+
 
 def mouse_clicked():
     print(mouse_x, mouse_y)
@@ -345,4 +368,5 @@ def key_pressed():
 def key_released():
     keys[key] = False
     
+
 
