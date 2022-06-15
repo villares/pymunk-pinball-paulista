@@ -69,10 +69,11 @@ def setup():   # configs iniciais (para o py5)
     shapes[-1].density = 0.02
     shapes[-1].collision_type = 1
     ball = shapes[-1].body #.apply_impulse_at_local_point( (0, -117000), (0,0) )
-    
-    ball_img = load_image('sphere.png')
-    if ball_img:
+    try:
+        ball_img = load_image('sphere.png')
         shapes[-1].img = ball_img
+    except RuntimeError:
+        print('could not load image')
     handler = space.add_collision_handler( 99, 1 )
     handler.post_solve = lose_ball
     
