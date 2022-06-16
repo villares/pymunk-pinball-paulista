@@ -1,10 +1,6 @@
-
-#PINBALL
-#TO-DO
-# Rotary-Limits nos Paddles
-# Controles no teclado para os Paddles
-# Plunger
-# "fundo" da caixa, detectar colisão com a bola
+# You'll need py5.ixora.io using "imported mode" (either CLI sketch runner or Thonny + thonny-py5mode)
+# To install py5: https://abav.lugaralgum.com/como-instalar-py5/ (PT & EN)
+# You'll need to install pymunk.org too.
 
 import pymunk as pm   # importa lib de simulação
 from random import choice
@@ -77,20 +73,22 @@ def setup():   # configs iniciais (para o py5)
         shapes[-1].img = ball_img
     except RuntimeError:
         print('could not load image')
+        
+    # When the ball falls out    
     handler = space.add_collision_handler( 99, 1 )
     handler.post_solve = lose_ball
-    
+    # Points!
     handler = space.add_collision_handler( 98, 1 )
     handler.post_solve = ponto
     
     #Paddle Comprimentos e Grossuras
-    PC = 80
-    Pc = 20
-    PG = 20
-    Pg = 10
+    PC = 80       # "size"
+    PG = Pc = 20  # larger radius
+    Pg = 10       # smaller radius
+    
     #Left Paddle shape & body
     global LPb, RPb
-    LPpts = var_bar_pts(0, 0, PC, 0, PG, Pg )#( (-Pc, -PG), (-Pc, PG), (PC, Pg), (PC, -Pg) )
+    LPpts = var_bar_pts(0, 0, PC, 0, PG, Pg ) # older simpler poly: ( (-Pc, -PG), (-Pc, PG), (PC, Pg), (PC, -Pg) )
     build_poly( ( 180, 600 ), LPpts, False, 0.1, 0.3, 0.5, color(127) )
     LPb = shapes[-1].body
     LPp = pm.PivotJoint( space.static_body, LPb, (180, 600) )
@@ -98,6 +96,7 @@ def setup():   # configs iniciais (para o py5)
                                 -PI / 12, PI / 10)
     constraints.append( LPp )
     space.add( LPp, LPrl )
+    
     #Right Paddle shape & body
     RPpts = var_bar_pts(0, 0, -PC, 0, PG, Pg ) #( (-PC, -Pg), (-PC, Pg), (Pc, PG), (Pc, -PG) )
     build_poly( ( 467-80, 600 ), RPpts, False, 0.1, 0.3, 0.5, color(127) )
@@ -105,10 +104,8 @@ def setup():   # configs iniciais (para o py5)
     RPp = pm.PivotJoint( space.static_body, RPb, (467-80, 600) )
     RPrl = pm.RotaryLimitJoint( space.static_body, RPb,
                                 -PI / 12, PI / 10)
-
     constraints.append( RPp )  # only for drawing
     space.add( RPp, RPrl )
-    
     
 
 def draw():   # loop de animação
