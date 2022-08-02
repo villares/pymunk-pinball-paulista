@@ -1,4 +1,5 @@
-# pymunk-pinball-paulista
+# pinball-paulista
+## Oficina de simulações físicas 2D no Sesc Av. Paulista em junho de 2022
 
 ![output](https://user-images.githubusercontent.com/3694604/174443509-0e8fa474-2ced-461c-93a8-ac64ccb1699a.gif)
 
